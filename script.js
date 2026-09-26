@@ -1,13 +1,11 @@
-// --- FIREBASE SETUP ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
 import { getFirestore, collection, getDocs, addDoc, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
-const firebaseConfig = {
-    apiKey: "AIzaSyAvVAw401NS1PgQNItOeWmgw1BFVSis81U",
+apiKey: "AIzaSyAvVAw401NS1PgQNItOeWmgw1BFVSis81U",
     authDomain: "tvp-flowers.firebaseapp.com",
-    projectId: "tvp-flowers",
-    storageBucket: "tvp-flowers.firebasestorage.app",
-    messagingSenderId: "305890583563",
-    appId: "1:305890583563:web:387bfcdcea353c77d7930e"
+        projectId: "tvp-flowers",
+            storageBucket: "tvp-flowers.firebasestorage.app",
+                messagingSenderId: "305890583563",
+                    appId: "1:305890583563:web:387bfcdcea353c77d7930e"
 };
 
 const app = initializeApp(firebaseConfig);
