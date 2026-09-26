@@ -1,7 +1,6 @@
 // --- FIREBASE SETUP ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-import { collection, getDocs, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/..."
-
+import { getFirestore, collection, getDocs, addDoc, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 const firebaseConfig = {
     apiKey: "AIzaSyAvVAw401NS1PgQNItOeWmgw1BFVSis81U",
     authDomain: "tvp-flowers.firebaseapp.com",
