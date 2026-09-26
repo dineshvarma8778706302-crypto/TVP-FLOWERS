@@ -28,9 +28,11 @@
             <div class="sidebar">
                 <h2>🌸 TVP FLOWERS</h2>
                 <ul>
-                    <li id="menu-dashboard" style="cursor: pointer;">Dashboard</li>
-                    <li id="menu-inventory" style="cursor: pointer; font-weight: bold;">Inventory</li>
-                    <li id="menu-orders" style="cursor: pointer;">Orders</li>
+                    <li id="menu-dashboard" style="font-weight: bold;">Dashboard</li>
+                    <li id="menu-inventory">Flower Inventory</li>
+                    <li id="menu-orders">Normal Orders</li>
+                    <li id="menu-wedding">Wedding Garlands</li>
+                    <li id="menu-temple">Temple Wholesale</li>
                 </ul>
             </div>
 
@@ -108,6 +110,60 @@
                 </div>
 
             </div>
+        </div>
+        <!-- WEDDING GARLANDS SECTION -->
+        <div id="wedding-section" class="inventory-section" style="display: none;">
+            <div class="table-header-bar">
+                <div>
+                    <h1>Wedding Garlands & Decor</h1>
+                    <p>Manage marriage orders, hall decorations, and advance payments</p>
+                </div>
+                <div>
+                    <input type="text" id="wedding-search" placeholder="Search orders..."
+                        onkeyup="window.searchWedding()">
+                    <button id="add-wedding-btn">+ Add Wedding Order</button>
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Customer & Hall</th>
+                        <th>Event Date</th>
+                        <th>Total Amount</th>
+                        <th>Advance Paid</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="wedding-body">
+                    <!-- JS data will load here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- TEMPLE WHOLESALE SECTION -->
+        <div id="temple-section" class="inventory-section" style="display: none;">
+            <div class="table-header-bar">
+                <div>
+                    <h1>Temple Wholesale Delivery</h1>
+                    <p>Manage daily bulk deliveries and temple accounts</p>
+                </div>
+                <div>
+                    <button id="add-temple-btn">+ Add Temple Delivery</button>
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Temple Name</th>
+                        <th>Flower Details (Kgs)</th>
+                        <th>Delivery Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="temple-body">
+                    <!-- JS data will load here -->
+                </tbody>
+            </table>
         </div>
 
         <!-- 1. Add Flower Popup Form -->
