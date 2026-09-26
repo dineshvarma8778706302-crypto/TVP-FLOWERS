@@ -1,25 +1,48 @@
-// --- 1. DATA SECTIONS (With Local Storage) ---
-const defaultInventory = [
-    { name: "Red Roses", quantity: 45, status: "In Stock", badgeClass: "in-stock" },
-    { name: "White Lilies", quantity: 8, status: "Low Stock", badgeClass: "low-stock" },
-    { name: "Orchids", quantity: 2, status: "Critical", badgeClass: "out-stock" },
-    { name: "Sunflowers", quantity: 25, status: "In Stock", badgeClass: "in-stock" }
-];
+// --- FIREBASE SETUP ---
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
-const defaultOrders = [
-    { id: "#ORD-101", customer: "Vijay", items: "Red Roses 5", status: "Delivered", badgeClass: "in-stock" },
-    { id: "#ORD-102", customer: "Ajith", items: "White Lilies 2", status: "Pending", badgeClass: "low-stock" },
-    { id: "#ORD-103", customer: "Surya", items: "Orchids 1", status: "Cancelled", badgeClass: "out-stock" }
-];
+const firebaseConfig = {
+    apiKey: "AIzaSyAvVAw401NS1PgQNItOeWmgw1BFVSis81U",
+    authDomain: "tvp-flowers.firebaseapp.com",
+    projectId: "tvp-flowers",
+    storageBucket: "tvp-flowers.firebasestorage.app",
+    messagingSenderId: "305890583563",
+    appId: "1:305890583563:web:387bfcdcea353c77d7930e"
+};
 
-let inventoryData = JSON.parse(localStorage.getItem('tvp_inventory')) || defaultInventory;
-let ordersData = JSON.parse(localStorage.getItem('tvp_orders')) || defaultOrders;
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-function saveToLocalStorage() {
-    localStorage.setItem('tvp_inventory', JSON.stringify(inventoryData));
-    localStorage.setItem('tvp_orders', JSON.stringify(ordersData));
+// --- CLOUD VARIABLES ---
+let inventoryData = [];
+let ordersData = [];
+
+// --- 1. LOAD DATA FROM FIRESTORE ---
+async function fetchInventory() {
+    const querySnapshot = await getDocs(collection(db, "inventory"));
+    inventoryData = [];
+    querySnapshot.forEach((doc) => {
+        inventoryData.push({ id: doc.id, ...doc.data() });
+    });
+    loadTableData();
     updateDashboard();
 }
+
+async function fetchOrders() {
+    const querySnapshot = await getDocs(collection(db, "orders"));
+    ordersData = [];
+    querySnapshot.forEach((doc) => {
+        ordersData.push({ id: doc.id, ...doc.data() });
+    });
+    loadOrdersData();
+    updateDashboard();
+}
+
+// Initial Data Fetch
+fetchInventory();
+fetchOrders();
+
 
 // --- 2. DYNAMIC DASHBOARD CALCULATION ---
 function updateDashboard() {
@@ -56,8 +79,8 @@ function loadTableData() {
                 <td>${inventoryData[i].quantity}</td>
                 <td><span class="badge ${inventoryData[i].badgeClass}">${inventoryData[i].status}</span></td>
                 <td>
-                    <button class="edit-btn" onclick="openEditModal(${i})">Edit</button>
-                    <button class="delete-btn" onclick="deleteFlower(${i})">Delete</button>
+                    <button class="edit-btn" onclick="window.openEditModal(${i})">Edit</button>
+                    <button class="delete-btn" onclick="window.deleteFlower('${inventoryData[i].id}')">Delete</button>
                 </td>
             </tr>
         `;
@@ -66,11 +89,10 @@ function loadTableData() {
     if (inventoryBody) inventoryBody.innerHTML = htmlContent;
 }
 
-function deleteFlower(index) {
+window.deleteFlower = async function (id) {
     if (confirm("Are you sure you want to delete this flower?")) {
-        inventoryData.splice(index, 1);
-        saveToLocalStorage();
-        loadTableData();
+        await deleteDoc(doc(db, "inventory", id));
+        fetchInventory(); // Refresh data from cloud
     }
 }
 
@@ -79,7 +101,7 @@ function loadOrdersData() {
     for (let i = 0; i < ordersData.length; i++) {
         htmlContent += `
             <tr>
-                <td><strong>${ordersData[i].id}</strong></td>
+                <td><strong>${ordersData[i].orderId}</strong></td>
                 <td>${ordersData[i].customer}</td>
                 <td>${ordersData[i].items}</td>
                 <td><span class="badge ${ordersData[i].badgeClass}">${ordersData[i].status}</span></td>
@@ -90,9 +112,6 @@ function loadOrdersData() {
     if (ordersBody) ordersBody.innerHTML = htmlContent;
 }
 
-loadTableData();
-loadOrdersData();
-updateDashboard();
 
 // --- 4. MODAL & FORM LOGIC (Add & Edit Flower) ---
 const flowerModal = document.getElementById('add-flower-modal');
@@ -104,25 +123,25 @@ if (addFlowerBtn) addFlowerBtn.onclick = function () { flowerModal.style.display
 if (closeFlowerBtn) closeFlowerBtn.onclick = function () { flowerModal.style.display = "none"; }
 
 if (flowerForm) {
-    flowerForm.onsubmit = function (event) {
+    flowerForm.onsubmit = async function (event) {
         event.preventDefault();
         const nameInput = document.getElementById('flower-name').value;
-        const quantityInput = document.getElementById('flower-quantity').value;
+        const quantityInput = parseInt(document.getElementById('flower-quantity').value);
         const statusInput = document.getElementById('flower-status').value;
 
         let badgeColor = 'in-stock';
         if (statusInput === 'Low Stock') badgeColor = 'low-stock';
         if (statusInput === 'Critical') badgeColor = 'out-stock';
 
-        inventoryData.push({
+        // ADD TO CLOUD DATABASE
+        await addDoc(collection(db, "inventory"), {
             name: nameInput,
             quantity: quantityInput,
             status: statusInput,
             badgeClass: badgeColor
         });
 
-        saveToLocalStorage();
-        loadTableData();
+        fetchInventory(); // Refresh from cloud
         flowerModal.style.display = "none";
         flowerForm.reset();
     }
@@ -133,8 +152,8 @@ const editModal = document.getElementById('edit-flower-modal');
 const editForm = document.getElementById('edit-flower-form');
 const closeEditBtn = document.querySelector('.close-edit-btn');
 
-function openEditModal(index) {
-    document.getElementById('edit-flower-index').value = index;
+window.openEditModal = function (index) {
+    document.getElementById('edit-flower-index').value = inventoryData[index].id;
     document.getElementById('edit-flower-name').value = inventoryData[index].name;
     document.getElementById('edit-flower-quantity').value = inventoryData[index].quantity;
     document.getElementById('edit-flower-status').value = inventoryData[index].status;
@@ -144,20 +163,27 @@ function openEditModal(index) {
 if (closeEditBtn) closeEditBtn.onclick = function () { editModal.style.display = "none"; }
 
 if (editForm) {
-    editForm.onsubmit = function (event) {
+    editForm.onsubmit = async function (event) {
         event.preventDefault();
-        const index = document.getElementById('edit-flower-index').value;
+        const id = document.getElementById('edit-flower-index').value;
         const nameInput = document.getElementById('edit-flower-name').value;
-        const quantityInput = document.getElementById('edit-flower-quantity').value;
+        const quantityInput = parseInt(document.getElementById('edit-flower-quantity').value);
         const statusInput = document.getElementById('edit-flower-status').value;
 
         let badgeColor = 'in-stock';
         if (statusInput === 'Low Stock') badgeColor = 'low-stock';
         if (statusInput === 'Critical') badgeColor = 'out-stock';
 
-        inventoryData[index] = { name: nameInput, quantity: quantityInput, status: statusInput, badgeClass: badgeColor };
-        saveToLocalStorage();
-        loadTableData();
+        // UPDATE IN CLOUD DATABASE
+        const flowerRef = doc(db, "inventory", id);
+        await updateDoc(flowerRef, {
+            name: nameInput,
+            quantity: quantityInput,
+            status: statusInput,
+            badgeClass: badgeColor
+        });
+
+        fetchInventory();
         editModal.style.display = "none";
     }
 }
@@ -172,7 +198,7 @@ if (addOrderBtn) addOrderBtn.onclick = function () { orderModal.style.display = 
 if (closeOrderBtn) closeOrderBtn.onclick = function () { orderModal.style.display = "none"; }
 
 if (orderForm) {
-    orderForm.onsubmit = function (event) {
+    orderForm.onsubmit = async function (event) {
         event.preventDefault();
         const customerInput = document.getElementById('order-customer').value;
         const itemsInput = document.getElementById('order-items').value;
@@ -184,40 +210,45 @@ if (orderForm) {
 
         const newOrderId = "#ORD-" + Math.floor(Math.random() * 900 + 100);
 
-        // --- SMART LOGIC: Auto-Stock Deduction ---
-        // Neenga type panna text-a vachu inventory-la thedi stock-a kuraiyum
+        // --- SMART LOGIC: Auto-Stock Deduction (Cloud Version) ---
         for (let i = 0; i < inventoryData.length; i++) {
-            // Text-la flower name irukka nu check pandrom (e.g., "Red Roses")
             if (itemsInput.toLowerCase().includes(inventoryData[i].name.toLowerCase())) {
-
-                // Text-la irukka number-a (quantity) regex moolama edukkurom
                 let match = itemsInput.match(/\d+/);
                 let qtyToDeduct = match ? parseInt(match[0]) : 1;
 
-                // Stock-a kurairom
-                inventoryData[i].quantity -= qtyToDeduct;
-                if (inventoryData[i].quantity < 0) inventoryData[i].quantity = 0; // 0 ku keela poga koodathu
+                let newQty = inventoryData[i].quantity - qtyToDeduct;
+                if (newQty < 0) newQty = 0;
 
-                // Status-a thaana update pandrom
-                if (inventoryData[i].quantity === 0) {
-                    inventoryData[i].status = "Critical";
-                    inventoryData[i].badgeClass = "out-stock";
-                } else if (inventoryData[i].quantity <= 5) {
-                    inventoryData[i].status = "Low Stock";
-                    inventoryData[i].badgeClass = "low-stock";
-                } else {
-                    inventoryData[i].status = "In Stock";
-                    inventoryData[i].badgeClass = "in-stock";
+                let newStatus = "In Stock";
+                let newBadge = "in-stock";
+
+                if (newQty === 0) {
+                    newStatus = "Critical"; newBadge = "out-stock";
+                } else if (newQty <= 5) {
+                    newStatus = "Low Stock"; newBadge = "low-stock";
                 }
+
+                // Update stock in cloud
+                const flowerRef = doc(db, "inventory", inventoryData[i].id);
+                await updateDoc(flowerRef, {
+                    quantity: newQty,
+                    status: newStatus,
+                    badgeClass: newBadge
+                });
             }
         }
-        // --- SMART LOGIC END ---
 
-        ordersData.push({ id: newOrderId, customer: customerInput, items: itemsInput, status: statusInput, badgeClass: badgeColor });
+        // Add Order to cloud
+        await addDoc(collection(db, "orders"), {
+            orderId: newOrderId,
+            customer: customerInput,
+            items: itemsInput,
+            status: statusInput,
+            badgeClass: badgeColor
+        });
 
-        saveToLocalStorage();
-        loadOrdersData();
-        loadTableData(); // Inventory table-ayum refresh pandrom
+        fetchOrders();
+        fetchInventory();
         orderModal.style.display = "none";
         orderForm.reset();
     }
@@ -229,7 +260,7 @@ window.onclick = function (event) {
     if (event.target == editModal) editModal.style.display = "none";
 }
 
-// --- 6. NAVIGATION TAB LOGIC ---
+// --- 6. NAVIGATION & SEARCH LOGIC ---
 const menuDashboard = document.getElementById('menu-dashboard');
 const menuInventory = document.getElementById('menu-inventory');
 const menuOrders = document.getElementById('menu-orders');
@@ -255,44 +286,32 @@ if (menuOrders) {
         menuDashboard.style.fontWeight = "normal"; menuInventory.style.fontWeight = "normal"; menuOrders.style.fontWeight = "bold";
     }
 }
-// --- 7. SEARCH FILTER LOGIC ---
-function searchInventory() {
-    // Search box-la type pandra ezhuthukalai edukkurom (ellam small letters-a maathi)
-    const input = document.getElementById("search-bar").value.toLowerCase();
 
-    // Table-la irukka ellla varisaikalaiyum (rows) edukkurom
+window.searchInventory = function () {
+    const input = document.getElementById("search-bar").value.toLowerCase();
     const tableBody = document.getElementById("inventory-body");
     const rows = tableBody.getElementsByTagName("tr");
 
-    // Ovvoru row-aai check pandrom
     for (let i = 0; i < rows.length; i++) {
-        // Mudhal column (0) la thaan poovoda peru irukku
         const flowerName = rows[i].getElementsByTagName("td")[0].innerText.toLowerCase();
-
-        // Search pandra ezhuthu antha perula irukka nu check pandrom
         if (flowerName.includes(input)) {
-            rows[i].style.display = ""; // Iruntha antha row-a display pannu
+            rows[i].style.display = "";
         } else {
-            rows[i].style.display = "none"; // Illana antha row-a maraichidu
+            rows[i].style.display = "none";
         }
     }
 }
-// --- 8. EXPORT TO CSV LOGIC ---
-function exportToCSV() {
-    // CSV file-oda mudhal line (Headers)
-    let csvContent = "data:text/csv;charset=utf-8,Flower Type,Quantity (Bunches),Status\n";
 
-    // Table-la irukka data-va comma pottu add pandrom
+window.exportToCSV = function () {
+    let csvContent = "data:text/csv;charset=utf-8,Flower Type,Quantity (Bunches),Status\n";
     for (let i = 0; i < inventoryData.length; i++) {
         let row = inventoryData[i].name + "," + inventoryData[i].quantity + "," + inventoryData[i].status;
         csvContent += row + "\n";
     }
-
-    // Download pandrathukaana magic logic
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "tvp_inventory_report.csv"); // Download aagum file name
+    link.setAttribute("download", "tvp_inventory_report.csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
