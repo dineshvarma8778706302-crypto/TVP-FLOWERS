@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TVP FLOWERS - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="dashboard-container">
+
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <h2>🌸 TVP FLOWERS</h2>
+            <ul>
+                <li id="menu-dashboard" style="cursor: pointer;">Dashboard</li>
+                <li id="menu-inventory" style="cursor: pointer; font-weight: bold;">Inventory</li>
+                <li id="menu-orders" style="cursor: pointer;">Orders</li>
+            </ul>
+        </div>
+
+        <!-- Right Main Content -->
+        <div class="main-content">
+            <h1>Welcome, Varma!</h1>
+            <p>Today's Overview</p>
+
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="cards-container" style="display: none;">
+                <div class="card">
+                    <h3>Total Revenue</h3>
+                    <p id="dash-revenue">₹0</p>
+                </div>
+                <div class="card">
+                    <h3>Pending Orders</h3>
+                    <p id="dash-pending">0</p>
+                </div>
+                <div class="card">
+                    <h3>Low Stock Alerts</h3>
+                    <p id="dash-low-stock" style="color: #e74c3c;">0 Items</p>
+                </div>
+            </div>
+
+            <!-- Inventory Section -->
+            <div id="inventory-section" class="inventory-section">
+
+                <!-- Pudhu Clean Header (Search + Export + Button) -->
+                <div class="inventory-header"
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Current Inventory</h2>
+                    <div>
+                        <input type="text" id="search-bar" placeholder="Search flowers..." onkeyup="searchInventory()">
+                        <button onclick="exportToCSV()" class="export-btn">Export CSV</button>
+                        <button id="add-flower-btn" class="add-btn">+ Add Flower</button>
+                    </div>
+                </div>
+
+                <table class="inventory-table">
+                    <thead>
+                        <tr>
+                            <th>Flower Type</th>
+                            <th>Quantity (Bunches)</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-body">
+                        <!-- JS data will load here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Orders Section -->
+            <div id="orders-section" class="inventory-section" style="display: none;">
+                <div class="inventory-header"
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Recent Orders</h2>
+                    <button id="add-order-btn" class="add-btn">+ Add Order</button>
+                </div>
+                <table class="inventory-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer Name</th>
+                            <th>Items Ordered</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-body">
+                        <!-- JS data will load here -->
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 1. Add Flower Popup Form -->
+    <div id="add-flower-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Add New Flower</h2>
+            <form id="add-flower-form">
+                <input type="text" id="flower-name" placeholder="Flower Name" required>
+                <input type="number" id="flower-quantity" placeholder="Quantity" required>
+                <select id="flower-status" required>
+                    <option value="In Stock">In Stock</option>
+                    <option value="Low Stock">Low Stock</option>
+                    <option value="Critical">Critical</option>
+                </select>
+                <button type="submit" class="save-btn">Save Flower</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. Add Order Popup Form -->
+    <div id="add-order-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-order-btn close-btn">&times;</span>
+            <h2>Add New Order</h2>
+            <form id="add-order-form">
+                <input type="text" id="order-customer" placeholder="Customer Name (e.g., Anirudh)" required>
+                <input type="text" id="order-items" placeholder="Items (e.g., Red Roses - 2)" required>
+                <select id="order-status" required>
+                    <option value="Pending">Pending</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+                <button type="submit" class="save-btn">Save Order</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. Edit Flower Popup Form -->
+    <div id="edit-flower-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-edit-btn close-btn">&times;</span>
+            <h2>Edit Flower</h2>
+            <form id="edit-flower-form">
+                <input type="hidden" id="edit-flower-index">
+
+                <input type="text" id="edit-flower-name" required>
+                <input type="number" id="edit-flower-quantity" required>
+                <select id="edit-flower-status" required>
+                    <option value="In Stock">In Stock</option>
+                    <option value="Low Stock">Low Stock</option>
+                    <option value="Critical">Critical</option>
+                </select>
+                <button type="submit" class="save-btn" style="background-color: #f39c12;">Update Flower</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
