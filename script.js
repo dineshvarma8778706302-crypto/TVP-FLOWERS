@@ -307,3 +307,14 @@ window.exportToCSV = function () {
     link.click();
     document.body.removeChild(link);
 }
+// --- 7. ADMIN LOGIN LOGIC ---
+window.checkLogin = function () {
+    const pass = document.getElementById("admin-pass").value;
+
+    if (pass === "admin123") { // Inga unga password-a neenga maathikkalam
+        document.getElementById("login-screen").style.display = "none";
+        document.getElementById("main-app").style.display = "block";
+    } else {
+        document.getElementById("login-error").style.display = "block";
+    }
+}
