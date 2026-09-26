@@ -1,6 +1,6 @@
 // --- FIREBASE SETUP ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+import { collection, getDocs, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/..."
 
 const firebaseConfig = {
     apiKey: "AIzaSyAvVAw401NS1PgQNItOeWmgw1BFVSis81U",
@@ -19,24 +19,19 @@ let inventoryData = [];
 let ordersData = [];
 
 // --- 1. LOAD DATA FROM FIRESTORE ---
-async function fetchInventory() {
-    const querySnapshot = await getDocs(collection(db, "inventory"));
-    inventoryData = [];
-    querySnapshot.forEach((doc) => {
-        inventoryData.push({ id: doc.id, ...doc.data() });
+function fetchInventory() {
+    // onSnapshot pottathala ippo auto-update aagum (Refresh thevaiyilla)
+    onSnapshot(collection(db, "inventory"), (querySnapshot) => {
+        inventoryData = [];
+        querySnapshot.forEach((doc) => {
+            inventoryData.push({ id: doc.id, ...doc.data() });
+        });
+        loadTableData();
+        updateDashboard();
     });
-    loadTableData();
-    updateDashboard();
 }
-
 async function fetchOrders() {
-    const querySnapshot = await getDocs(collection(db, "orders"));
-    ordersData = [];
-    querySnapshot.forEach((doc) => {
-        ordersData.push({ id: doc.id, ...doc.data() });
-    });
-    loadOrdersData();
-    updateDashboard();
+
 }
 
 // Initial Data Fetch
