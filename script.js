@@ -1,11 +1,14 @@
+// --- FIREBASE SETUP ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
-apiKey: "AIzaSyAvVAw401NS1PgQNItOeWmgw1BFVSis81U",
+import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyAvVAw401NS1PgQNItOeWmgw1BFVSis81U",
     authDomain: "tvp-flowers.firebaseapp.com",
-        projectId: "tvp-flowers",
-            storageBucket: "tvp-flowers.firebasestorage.app",
-                messagingSenderId: "305890583563",
-                    appId: "1:305890583563:web:387bfcdcea353c77d7930e"
+    projectId: "tvp-flowers",
+    storageBucket: "tvp-flowers.firebasestorage.app",
+    messagingSenderId: "305890583563",
+    appId: "1:305890583563:web:387bfcdcea353c77d7930e"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -15,9 +18,8 @@ const db = getFirestore(app);
 let inventoryData = [];
 let ordersData = [];
 
-// --- 1. LOAD DATA FROM FIRESTORE ---
+// --- 1. LOAD DATA FROM FIRESTORE (REAL-TIME) ---
 function fetchInventory() {
-    // onSnapshot pottathala ippo auto-update aagum (Refresh thevaiyilla)
     onSnapshot(collection(db, "inventory"), (querySnapshot) => {
         inventoryData = [];
         querySnapshot.forEach((doc) => {
@@ -27,14 +29,21 @@ function fetchInventory() {
         updateDashboard();
     });
 }
-async function fetchOrders() {
 
+function fetchOrders() {
+    onSnapshot(collection(db, "orders"), (querySnapshot) => {
+        ordersData = [];
+        querySnapshot.forEach((doc) => {
+            ordersData.push({ id: doc.id, ...doc.data() });
+        });
+        loadOrdersData();
+        updateDashboard();
+    });
 }
 
 // Initial Data Fetch
 fetchInventory();
 fetchOrders();
-
 
 // --- 2. DYNAMIC DASHBOARD CALCULATION ---
 function updateDashboard() {
@@ -84,7 +93,6 @@ function loadTableData() {
 window.deleteFlower = async function (id) {
     if (confirm("Are you sure you want to delete this flower?")) {
         await deleteDoc(doc(db, "inventory", id));
-        fetchInventory(); // Refresh data from cloud
     }
 }
 
@@ -125,7 +133,6 @@ if (flowerForm) {
         if (statusInput === 'Low Stock') badgeColor = 'low-stock';
         if (statusInput === 'Critical') badgeColor = 'out-stock';
 
-        // ADD TO CLOUD DATABASE
         await addDoc(collection(db, "inventory"), {
             name: nameInput,
             quantity: quantityInput,
@@ -133,7 +140,6 @@ if (flowerForm) {
             badgeClass: badgeColor
         });
 
-        fetchInventory(); // Refresh from cloud
         flowerModal.style.display = "none";
         flowerForm.reset();
     }
@@ -166,7 +172,6 @@ if (editForm) {
         if (statusInput === 'Low Stock') badgeColor = 'low-stock';
         if (statusInput === 'Critical') badgeColor = 'out-stock';
 
-        // UPDATE IN CLOUD DATABASE
         const flowerRef = doc(db, "inventory", id);
         await updateDoc(flowerRef, {
             name: nameInput,
@@ -175,12 +180,11 @@ if (editForm) {
             badgeClass: badgeColor
         });
 
-        fetchInventory();
         editModal.style.display = "none";
     }
 }
 
-// --- 5. MODAL & FORM LOGIC (Add Order WITH SMART DEDUCTION) ---
+// --- 5. MODAL & FORM LOGIC (Add Order) ---
 const orderModal = document.getElementById('add-order-modal');
 const addOrderBtn = document.getElementById('add-order-btn');
 const closeOrderBtn = document.querySelector('#add-order-modal .close-btn');
@@ -202,7 +206,6 @@ if (orderForm) {
 
         const newOrderId = "#ORD-" + Math.floor(Math.random() * 900 + 100);
 
-        // --- SMART LOGIC: Auto-Stock Deduction (Cloud Version) ---
         for (let i = 0; i < inventoryData.length; i++) {
             if (itemsInput.toLowerCase().includes(inventoryData[i].name.toLowerCase())) {
                 let match = itemsInput.match(/\d+/);
@@ -220,7 +223,6 @@ if (orderForm) {
                     newStatus = "Low Stock"; newBadge = "low-stock";
                 }
 
-                // Update stock in cloud
                 const flowerRef = doc(db, "inventory", inventoryData[i].id);
                 await updateDoc(flowerRef, {
                     quantity: newQty,
@@ -230,7 +232,6 @@ if (orderForm) {
             }
         }
 
-        // Add Order to cloud
         await addDoc(collection(db, "orders"), {
             orderId: newOrderId,
             customer: customerInput,
@@ -239,8 +240,6 @@ if (orderForm) {
             badgeClass: badgeColor
         });
 
-        fetchOrders();
-        fetchInventory();
         orderModal.style.display = "none";
         orderForm.reset();
     }
