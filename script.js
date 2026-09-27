@@ -463,11 +463,15 @@ function fetchWeddingOrders() {
                     <td>₹${data.total.toLocaleString('en-IN')}</td>
                     <td>₹${data.advance.toLocaleString('en-IN')}</td>
                     <td><span class="badge ${data.badgeClass}">${data.status}</span></td>
+                    <td>
+                        <button onclick="window.printBill('${doc.id}')" style="background: white; border: 1.5px solid #cbd5e1; color: #334155; padding: 5px 10px; font-size: 12px;">🖨️ Print</button>
+                    </td>
                 </tr>
             `;
         });
         const tbody = document.getElementById('wedding-body');
         if (tbody) tbody.innerHTML = htmlContent;
+        updateDashboardMetrics(); // Dashboard update panna call pandrom
     });
 }
 
@@ -489,6 +493,7 @@ function fetchTempleDeliveries() {
         });
         const tbody = document.getElementById('temple-body');
         if (tbody) tbody.innerHTML = htmlContent;
+        updateDashboardMetrics(); // Dashboard update panna call pandrom
     });
 }
 
@@ -513,7 +518,104 @@ window.logout = function () {
     // 1. Username and Password box-a clear pandrathu
     document.getElementById("admin-user").value = "";
     document.getElementById("admin-pass").value = "";
+    // --- 11. INVOICE / BILL PRINT LOGIC ---
+    window.printBill = function (orderId) {
+        // 1. Order details-a thedi edukkrom
+        const order = weddingData.find(item => item.id === orderId);
+        if (!order) {
+            alert("Villain inga thaan irukkan! Order data kedaikkala!");
+            return;
+        }
 
+        // Balance amount calculate pandrom
+        const balance = order.total - order.advance;
+
+        // 2. Puthusa oru window open pandrom
+        const printWin = window.open('', '_blank');
+
+        // 3. Bill-oda HTML design-a antha window-la ezhuthurom
+        printWin.document.write(`
+        <html>
+        <head>
+            <title>Invoice - TVP Flowers</title>
+            <style>
+                body { font-family: 'Arial', sans-serif; padding: 40px; color: #333; }
+                .header { text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 30px; }
+                .header h1 { color: #e11d48; margin: 0; font-size: 28px; }
+                .header p { margin: 5px 0; color: #666; }
+                .invoice-details { margin-bottom: 30px; font-size: 16px; }
+                .invoice-details p { margin: 5px 0; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+                th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+                th { background-color: #f8fafc; }
+                .totals { width: 50%; float: right; }
+                .totals table { border: none; }
+                .totals th, .totals td { border: none; border-bottom: 1px solid #eee; }
+                .footer { clear: both; text-align: center; margin-top: 50px; font-size: 14px; color: #888; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>🌸 TVP FLOWERS</h1>
+                <p>Premium Wedding Garlands & Decor</p>
+                <p>Coimbatore | Ph: +91 9876543210</p>
+            </div>
+            
+            <div class="invoice-details">
+                <p><strong>Customer / Hall:</strong> ${order.customer}</p>
+                <p><strong>Event Date:</strong> ${order.date}</p>
+                <p><strong>Status:</strong> ${order.status}</p>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Wedding Garlands & Decoration Package</td>
+                        <td>Rs. ${order.total.toLocaleString('en-IN')}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="totals">
+                <table>
+                    <tr>
+                        <th>Total Amount:</th>
+                        <td>Rs. ${order.total.toLocaleString('en-IN')}</td>
+                    </tr>
+                    <tr>
+                        <th>Advance Paid:</th>
+                        <td>Rs. ${order.advance.toLocaleString('en-IN')}</td>
+                    </tr>
+                    <tr>
+                        <th><strong>Balance Due:</strong></th>
+                        <td><strong>Rs. ${balance.toLocaleString('en-IN')}</strong></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="footer">
+                <p>Thank you for choosing TVP Flowers for your special event!</p>
+                <p>This is a computer generated invoice.</p>
+            </div>
+        </body>
+        </html>
+    `);
+
+        printWin.document.close();
+        printWin.focus();
+
+        // Print dialog open panna oru half-second wait pandrom (CSS load aaga)
+        setTimeout(() => {
+            printWin.print();
+            printWin.close();
+        }, 500);
+    }
     // Eye icon-a default state-ku maathurathu
     const passInput = document.getElementById("admin-pass");
     const toggleIcon = document.getElementById("toggle-password");
@@ -534,4 +636,123 @@ window.logout = function () {
         document.getElementById('dashboard-section').style.display = "block";
         document.getElementById('menu-dashboard').style.fontWeight = "bold";
     }
+}
+// --- 11. INVOICE / BILL PRINT LOGIC ---
+window.printBill = function (orderId) {
+    const order = weddingData.find(item => item.id === orderId);
+    if (!order) {
+        alert("Order details not found!");
+        return;
+    }
+
+    const balance = order.total - order.advance;
+    const printWin = window.open('', '_blank');
+
+    printWin.document.write(`
+        <html>
+        <head>
+            <title>Invoice - TVP Flowers</title>
+            <style>
+                body { font-family: 'Arial', sans-serif; padding: 40px; color: #333; }
+                .header { text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 30px; }
+                .header h1 { color: #e11d48; margin: 0; font-size: 28px; }
+                .header p { margin: 5px 0; color: #666; }
+                .invoice-details { margin-bottom: 30px; font-size: 16px; }
+                .invoice-details p { margin: 5px 0; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+                th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+                th { background-color: #f8fafc; }
+                .totals { width: 50%; float: right; }
+                .totals table { border: none; }
+                .totals th, .totals td { border: none; border-bottom: 1px solid #eee; }
+                .footer { clear: both; text-align: center; margin-top: 50px; font-size: 14px; color: #888; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>🌸 TVP FLOWERS</h1>
+                <p>Premium Wedding Garlands & Decor</p>
+                <p>Coimbatore | Ph: +91 9876543210</p>
+            </div>
+            
+            <div class="invoice-details">
+                <p><strong>Customer / Hall:</strong> ${order.customer}</p>
+                <p><strong>Event Date:</strong> ${order.date}</p>
+                <p><strong>Status:</strong> ${order.status}</p>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Wedding Garlands & Decoration Package</td>
+                        <td>Rs. ${order.total.toLocaleString('en-IN')}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="totals">
+                <table>
+                    <tr>
+                        <th>Total Amount:</th>
+                        <td>Rs. ${order.total.toLocaleString('en-IN')}</td>
+                    </tr>
+                    <tr>
+                        <th>Advance Paid:</th>
+                        <td>Rs. ${order.advance.toLocaleString('en-IN')}</td>
+                    </tr>
+                    <tr>
+                        <th><strong>Balance Due:</strong></th>
+                        <td><strong>Rs. ${balance.toLocaleString('en-IN')}</strong></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="footer">
+                <p>Thank you for choosing TVP Flowers for your special event!</p>
+                <p>This is a computer generated invoice.</p>
+            </div>
+        </body>
+        </html>
+    `);
+
+    printWin.document.close();
+    printWin.focus();
+
+    setTimeout(() => {
+        printWin.print();
+        printWin.close();
+    }, 500);
+}
+// --- 12. DYNAMIC DASHBOARD (REAL-TIME CALCULATION) ---
+function updateDashboardMetrics() {
+    let totalRevenue = 0;
+    let pendingOrders = 0;
+
+    // 1. Wedding orders-la irunthu revenue & pending calculate pandrom
+    weddingData.forEach(order => {
+        totalRevenue += parseInt(order.total) || 0;
+        if (order.status !== "Completed") {
+            pendingOrders++;
+        }
+    });
+
+    // 2. Temple deliveries-la irukka pending calculate pandrom
+    templeData.forEach(delivery => {
+        if (delivery.status !== "Delivered") {
+            pendingOrders++;
+        }
+    });
+
+    // 3. UI-la update pandrom
+    const dashRevenue = document.getElementById("dash-revenue");
+    const dashPending = document.getElementById("dash-pending");
+
+    if (dashRevenue) dashRevenue.innerText = "₹" + totalRevenue.toLocaleString('en-IN');
+    if (dashPending) dashPending.innerText = pendingOrders;
 }
