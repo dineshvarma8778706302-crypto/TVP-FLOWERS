@@ -332,3 +332,15 @@ window.searchInventory = function () {
     }
 }
 // ... (exportToCSV functions continue down here)
+// --- 7. ADMIN LOGIN LOGIC ---
+window.checkLogin = function () {
+    const pass = document.getElementById("admin-pass").value;
+
+    if (pass === "admin123") {
+        document.getElementById("login-screen").style.display = "none";
+        document.getElementById("main-app").style.display = "flex";
+    } else {
+        const errorMsg = document.getElementById("login-error");
+        if (errorMsg) errorMsg.style.display = "block";
+    }
+}
