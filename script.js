@@ -495,3 +495,16 @@ function fetchTempleDeliveries() {
 // App open aagum pothu data-va load panna
 fetchWeddingOrders();
 fetchTempleDeliveries();
+// --- PASSWORD VISIBILITY TOGGLE ---
+window.togglePassword = function () {
+    const passInput = document.getElementById("admin-pass");
+    const toggleIcon = document.getElementById("toggle-password");
+
+    if (passInput.type === "password") {
+        passInput.type = "text";
+        toggleIcon.innerText = "🙈"; // Kannai moodum emoji
+    } else {
+        passInput.type = "password";
+        toggleIcon.innerText = "👁️"; // Kannai thirakkum emoji
+    }
+}

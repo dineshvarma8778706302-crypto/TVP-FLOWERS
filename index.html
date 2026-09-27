@@ -16,8 +16,13 @@
         <!-- Puthusa add panna Username Box -->
         <input type="text" id="admin-user" placeholder="Enter Your Name"
             style="padding: 10px; width: 250px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px;">
-        <input type="password" id="admin-pass" placeholder="Enter Password"
-            style="padding: 10px; width: 250px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px;">
+        <!-- Puthusa add panna Password Box with Eye Icon -->
+        <div style="position: relative; width: 250px; margin-bottom: 15px;">
+            <input type="password" id="admin-pass" placeholder="Enter Password"
+                style="width: 100% !important; margin-bottom: 0 !important; padding: 10px; padding-right: 40px !important; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
+            <span id="toggle-password" onclick="window.togglePassword()"
+                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 18px; user-select: none;">👁️</span>
+        </div>
         <button onclick="window.checkLogin()"
             style="padding: 10px 20px; background-color: #2ecc71; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">Login</button>
         <p id="login-error" style="color: red; display: none; margin-top: 15px;">Wrong Password!</p>
