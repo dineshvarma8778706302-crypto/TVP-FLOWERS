@@ -332,13 +332,27 @@ window.searchInventory = function () {
     }
 }
 // ... (exportToCSV functions continue down here)
-// --- 7. ADMIN LOGIN LOGIC ---
+// --- 7. ADMIN LOGIN LOGIC (UPDATED WITH USERNAME) ---
 window.checkLogin = function () {
+    const user = document.getElementById("admin-user").value;
     const pass = document.getElementById("admin-pass").value;
 
+    // Name box empty-a iruntha ulla vida koodathu
+    if (user.trim() === "") {
+        alert("Please enter your name!");
+        return;
+    }
+
     if (pass === "admin123") {
+        // Login success aana app-a kaaturanum
         document.getElementById("login-screen").style.display = "none";
         document.getElementById("main-app").style.display = "flex";
+
+        // Name-a eduthu Welcome Board-la podurathu
+        const welcomeBoard = document.getElementById("welcome-text");
+        if (welcomeBoard) {
+            welcomeBoard.innerText = "Welcome, " + user + "!";
+        }
     } else {
         const errorMsg = document.getElementById("login-error");
         if (errorMsg) errorMsg.style.display = "block";

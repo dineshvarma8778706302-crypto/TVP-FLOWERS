@@ -12,7 +12,10 @@
     <!-- LOGIN SCREEN -->
     <div id="login-screen"
         style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #f4f7f6;">
-        <h2 style="color: #2c3e50; margin-bottom: 20px;">TVP Flowers - Admin Login</h2>
+        <h2 style="color: #2c3e50; margin-bottom: 20px;">TVP Flowers - Login</h2>
+        <!-- Puthusa add panna Username Box -->
+        <input type="text" id="admin-user" placeholder="Enter Your Name"
+            style="padding: 10px; width: 250px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px;">
         <input type="password" id="admin-pass" placeholder="Enter Password"
             style="padding: 10px; width: 250px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px;">
         <button onclick="window.checkLogin()"
@@ -38,7 +41,7 @@
 
             <!-- Right Main Content -->
             <div class="main-content">
-                <h1>Welcome, Varma!</h1>
+                <h1 id="welcome-text">Welcome, User!</h1> <!-- Intha ID thaan mukkiyam -->
                 <p>Today's Overview</p>
 
                 <!-- Dashboard Section -->
