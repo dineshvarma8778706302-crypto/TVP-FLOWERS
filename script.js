@@ -369,3 +369,115 @@ window.onclick = function (event) {
     if (event.target == weddingModal) weddingModal.style.display = "none";
     if (event.target == templeModal) templeModal.style.display = "none";
 }
+// --- 9. FIREBASE SAVE & LOAD (WEDDING & TEMPLE) ---
+
+// Arrays to store data
+let weddingData = [];
+let templeData = [];
+
+// --- SAVE WEDDING ORDER ---
+const weddingForm = document.getElementById('add-wedding-form');
+if (weddingForm) {
+    weddingForm.onsubmit = async function (event) {
+        event.preventDefault(); // Ithu thaan page refresh aaguratha thadukkum!
+
+        const customer = document.getElementById('wedding-customer').value;
+        const date = document.getElementById('wedding-date').value;
+        const total = parseInt(document.getElementById('wedding-total').value);
+        const advance = parseInt(document.getElementById('wedding-advance').value);
+        const status = document.getElementById('wedding-status').value;
+
+        let badgeColor = 'low-stock';
+        if (status === 'Completed') badgeColor = 'in-stock';
+        if (status === 'Confirmed') badgeColor = 'out-stock';
+
+        // Saving to Firebase
+        await addDoc(collection(db, "wedding_orders"), {
+            customer: customer,
+            date: date,
+            total: total,
+            advance: advance,
+            status: status,
+            badgeClass: badgeColor
+        });
+
+        document.getElementById('add-wedding-modal').style.display = "none";
+        weddingForm.reset(); // Form-a clear pandrathu
+    }
+}
+
+// --- SAVE TEMPLE DELIVERY ---
+const templeForm = document.getElementById('add-temple-form');
+if (templeForm) {
+    templeForm.onsubmit = async function (event) {
+        event.preventDefault(); // Page refresh stop
+
+        const name = document.getElementById('temple-name').value;
+        const details = document.getElementById('temple-details').value;
+        const time = document.getElementById('temple-time').value;
+        const status = document.getElementById('temple-status').value;
+
+        let badgeColor = 'low-stock';
+        if (status === 'Delivered') badgeColor = 'in-stock';
+
+        // Saving to Firebase
+        await addDoc(collection(db, "temple_deliveries"), {
+            name: name,
+            details: details,
+            time: time,
+            status: status,
+            badgeClass: badgeColor
+        });
+
+        document.getElementById('add-temple-modal').style.display = "none";
+        templeForm.reset();
+    }
+}
+
+// --- FETCH & DISPLAY DATA REAL-TIME ---
+function fetchWeddingOrders() {
+    onSnapshot(collection(db, "wedding_orders"), (querySnapshot) => {
+        weddingData = [];
+        let htmlContent = '';
+        querySnapshot.forEach((doc) => {
+            let data = doc.data();
+            weddingData.push({ id: doc.id, ...data });
+            htmlContent += `
+                <tr>
+                    <td><strong>${data.customer}</strong></td>
+                    <td>${data.date}</td>
+                    <td>₹${data.total.toLocaleString('en-IN')}</td>
+                    <td>₹${data.advance.toLocaleString('en-IN')}</td>
+                    <td><span class="badge ${data.badgeClass}">${data.status}</span></td>
+                </tr>
+            `;
+        });
+        const tbody = document.getElementById('wedding-body');
+        if (tbody) tbody.innerHTML = htmlContent;
+    });
+}
+
+function fetchTempleDeliveries() {
+    onSnapshot(collection(db, "temple_deliveries"), (querySnapshot) => {
+        templeData = [];
+        let htmlContent = '';
+        querySnapshot.forEach((doc) => {
+            let data = doc.data();
+            templeData.push({ id: doc.id, ...data });
+            htmlContent += `
+                <tr>
+                    <td><strong>${data.name}</strong></td>
+                    <td>${data.details}</td>
+                    <td>${data.time}</td>
+                    <td><span class="badge ${data.badgeClass}">${data.status}</span></td>
+                </tr>
+            `;
+        });
+        const tbody = document.getElementById('temple-body');
+        if (tbody) tbody.innerHTML = htmlContent;
+    });
+}
+
+// App open aagum pothu data-va load panna
+fetchWeddingOrders();
+fetchTempleDeliveries();
