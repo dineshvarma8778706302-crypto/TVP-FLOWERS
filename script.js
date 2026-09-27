@@ -344,3 +344,28 @@ window.checkLogin = function () {
         if (errorMsg) errorMsg.style.display = "block";
     }
 }
+// --- 8. WEDDING & TEMPLE MODALS (OPEN & CLOSE LOGIC) ---
+const weddingModal = document.getElementById('add-wedding-modal');
+const addWeddingBtn = document.getElementById('add-wedding-btn');
+const closeWeddingBtn = document.getElementById('close-wedding-btn');
+
+const templeModal = document.getElementById('add-temple-modal');
+const addTempleBtn = document.getElementById('add-temple-btn');
+const closeTempleBtn = document.getElementById('close-temple-btn');
+
+// Open Modals
+if (addWeddingBtn) addWeddingBtn.onclick = function () { weddingModal.style.display = "flex"; }
+if (addTempleBtn) addTempleBtn.onclick = function () { templeModal.style.display = "flex"; }
+
+// Close Modals
+if (closeWeddingBtn) closeWeddingBtn.onclick = function () { weddingModal.style.display = "none"; }
+if (closeTempleBtn) closeTempleBtn.onclick = function () { templeModal.style.display = "none"; }
+
+// Modal-ku veliya click panna close aaga
+window.onclick = function (event) {
+    if (event.target == document.getElementById('add-flower-modal')) document.getElementById('add-flower-modal').style.display = "none";
+    if (event.target == document.getElementById('add-order-modal')) document.getElementById('add-order-modal').style.display = "none";
+    if (event.target == document.getElementById('edit-flower-modal')) document.getElementById('edit-flower-modal').style.display = "none";
+    if (event.target == weddingModal) weddingModal.style.display = "none";
+    if (event.target == templeModal) templeModal.style.display = "none";
+}

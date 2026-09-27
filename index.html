@@ -224,6 +224,43 @@
 
         <script type="module" src="script.js"></script>
     </div>
+    <!-- WEDDING ORDER MODAL -->
+    <div id="add-wedding-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-wedding-btn">&times;</span>
+            <h3>Add Wedding Order</h3>
+            <form id="add-wedding-form">
+                <input type="text" id="wedding-customer" placeholder="Customer & Hall Name" required>
+                <input type="date" id="wedding-date" required>
+                <input type="number" id="wedding-total" placeholder="Total Amount (₹)" required>
+                <input type="number" id="wedding-advance" placeholder="Advance Paid (₹)" required>
+                <select id="wedding-status">
+                    <option value="Confirmed">Confirmed</option>
+                    <option value="Processing">Processing</option>
+                    <option value="Completed">Completed</option>
+                </select>
+                <button type="submit" class="save-btn">Save Order</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- TEMPLE DELIVERY MODAL -->
+    <div id="add-temple-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-temple-btn">&times;</span>
+            <h3>Add Temple Delivery</h3>
+            <form id="add-temple-form">
+                <input type="text" id="temple-name" placeholder="Temple Name" required>
+                <input type="text" id="temple-details" placeholder="Flower Details (e.g., 5kg Marigold)" required>
+                <input type="time" id="temple-time" required>
+                <select id="temple-status">
+                    <option value="Scheduled">Scheduled</option>
+                    <option value="Delivered">Delivered</option>
+                </select>
+                <button type="submit" class="save-btn">Save Delivery</button>
+            </form>
+        </div>
+    </div>
 </body>
 
 </html>
