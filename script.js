@@ -508,3 +508,30 @@ window.togglePassword = function () {
         toggleIcon.innerText = "👁️"; // Kannai thirakkum emoji
     }
 }
+// --- 10. LOGOUT SECURE LOGIC ---
+window.logout = function () {
+    // 1. Username and Password box-a clear pandrathu
+    document.getElementById("admin-user").value = "";
+    document.getElementById("admin-pass").value = "";
+
+    // Eye icon-a default state-ku maathurathu
+    const passInput = document.getElementById("admin-pass");
+    const toggleIcon = document.getElementById("toggle-password");
+    if (passInput) passInput.type = "password";
+    if (toggleIcon) toggleIcon.innerText = "👁️";
+
+    // 2. Main app hide panni, Login screen kaatanum
+    document.getElementById("main-app").style.display = "none";
+    document.getElementById("login-screen").style.display = "flex";
+
+    // 3. Pazhaya login error iruntha atha maraikkanum
+    const errorMsg = document.getElementById("login-error");
+    if (errorMsg) errorMsg.style.display = "none";
+
+    // 4. Default-a Dashboard-a select panni vaikkanum (Next time login panna form-kulla pohama irukka)
+    if (typeof hideAllSections === "function") {
+        hideAllSections();
+        document.getElementById('dashboard-section').style.display = "block";
+        document.getElementById('menu-dashboard').style.fontWeight = "bold";
+    }
+}
